@@ -19,7 +19,7 @@
 1. Клонируйте репозиторpoetry shellий:
 
     ```bash
-    git clone git@github.com:ilushka-off/Methods_research_modeling.git
+    git clone git@github.com:ilushka-off/healthcare-analytics-dashboard.git
     cd healthcare-analytics-dashboard
     ```
 
