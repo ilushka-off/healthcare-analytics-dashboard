@@ -1,0 +1,28 @@
+[tool.poetry]
+name = "methods-research-modeling"
+version = "0.1.0"
+description = ""
+authors = ["Ilya <mnailJk@yandex.ru>"]
+readme = "README.md"
+
+
+[tool.poetry.dependencies]
+python = "^3.12"
+pandas = "^2.2.3"
+numpy = ">=1.26.0,<2.1.0"
+scikit-learn = "^1.6.1"
+plotly = "^5.24.1"
+dash = "^2.18.2"
+tensorflow = "^2.18.0"
+seaborn = "^0.13.2"
+
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
+flake8 = "^6.1.0"
+mypy = "^1.5.1"
+black = "^23.9.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
