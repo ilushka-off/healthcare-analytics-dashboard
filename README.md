@@ -16,7 +16,7 @@
 
 ## Установка
 
-1. Клонируйте репозиторpoetry shellий:
+1. Клонируйте репозиторий:
 
     ```bash
     git clone git@github.com:ilushka-off/healthcare-analytics-dashboard.git
