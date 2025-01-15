@@ -7,7 +7,7 @@ app.title = "Healthcare Analytics Dashboard"
 app.layout = layout
 
 def main():
-    app.run_server(debug=True)
+    app.run_server(debug=False)
 
 if __name__ == "__main__":
     main()
