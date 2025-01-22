@@ -1,5 +1,4 @@
 import plotly.express as px
-import plotly.graph_objects as go
 
 def create_figures(pred_df, data):
     # Гистограмма для распределения истинных значений возраста (y_true)
