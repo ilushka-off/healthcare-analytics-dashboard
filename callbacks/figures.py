@@ -1,4 +1,6 @@
 import plotly.express as px
+import plotly.figure_factory as ff
+import pandas as pd
 
 def create_figures(pred_df, data):
     # Гистограмма для распределения истинных значений возраста (y_true)
@@ -50,7 +52,6 @@ def create_figures(pred_df, data):
     )
 
     # Диаграмма пирога для анализа категориальных переменных (Gender)
-    # Используем one-hot encoded столбец для Gender
     fig_gender_pie = px.pie(
         data, names='Gender_Male', title="Распределение по полу пациентов"
     )
@@ -59,5 +60,34 @@ def create_figures(pred_df, data):
     fig_medical_condition_pie = px.pie(
         data, names='Medical Condition_Obesity', title="Распределение заболеваний пациентов"
     )
-
-    return fig_age_distribution, fig_age_scatter, fig_billing_by_admission, fig_billing_scatter, fig_age_error, fig_billing_error, fig_gender_pie, fig_medical_condition_pie
+    
+    # Матрица корреляции
+    correlation_matrix = pred_df.corr()
+    fig_corr_matrix = ff.create_annotated_heatmap(
+        z=correlation_matrix.values,
+        x=list(correlation_matrix.columns),
+        y=list(correlation_matrix.index),
+        annotation_text=correlation_matrix.round(2).values,
+        colorscale='Viridis',
+        showscale=True,
+    )
+    fig_corr_matrix.update_layout(title="Матрица корреляции признаков")
+    
+    # Гистограмма распределения признаков
+    feature_distribution = px.histogram(
+        data.melt(), x='value', color='variable',
+        title="Распределение признаков"
+    )
+    
+    # Scatter plot корреляции между ошибками предсказаний
+    fig_error_correlation = px.scatter(
+        pred_df, x='error', y='error_billing',
+        title="Корреляция ошибок предсказаний возраста и стоимости лечения"
+    )
+    
+    return (
+        fig_age_distribution, fig_age_scatter, fig_billing_by_admission, 
+        fig_billing_scatter, fig_age_error, fig_billing_error, 
+        fig_gender_pie, fig_medical_condition_pie, fig_corr_matrix, 
+        feature_distribution, fig_error_correlation
+    )

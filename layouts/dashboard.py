@@ -4,6 +4,8 @@ from callbacks.figures import create_figures
 from callbacks.metrics import calculate_metrics
 from utils.data_loader import load_data
 from callbacks.model import train_model
+import pandas as pd
+from sklearn.preprocessing import StandardScaler
 
 # Логирование начала работы дашборда
 log_file = 'data/dashboard_log.txt'
@@ -28,8 +30,21 @@ best_model, pred_df, hist_df = train_model(data)
 # Вычисление метрик
 mae, mse, rmse, r2 = calculate_metrics()
 
+# Создание копии данных для категориальных признаков
+categorical_data = data.select_dtypes(include=['object', 'bool']).copy()
+
+# Нормализация данных для корректного распределения признаков
+numeric_columns = data.select_dtypes(include=['int64', 'float64']).columns
+scaler = StandardScaler()
+data_scaled = pd.DataFrame(scaler.fit_transform(data[numeric_columns]), columns=numeric_columns)
+data_melted = data_scaled.melt()
+
 # Генерация графиков
-fig_age_distribution, fig_age_scatter, fig_billing_by_admission, fig_billing_scatter, fig_age_error, fig_billing_error, fig_gender_pie, fig_medical_condition_pie = create_figures(pred_df, data)
+figures = create_figures(pred_df, categorical_data)
+(fig_age_distribution, fig_age_scatter, fig_billing_by_admission, 
+ fig_billing_scatter, fig_age_error, fig_billing_error, 
+ fig_gender_pie, fig_medical_condition_pie, fig_corr_matrix, 
+ feature_distribution, fig_error_correlation) = figures
 
 # Layout приложения
 layout = html.Div(style={'font-family': 'Arial, sans-serif', 'backgroundColor': '#f4f4f4', 'padding': '20px'}, children=[
@@ -76,40 +91,18 @@ layout = html.Div(style={'font-family': 'Arial, sans-serif', 'backgroundColor': 
                 'yaxis': {'title': 'Значение'}
             }
         }),
-        html.P("На этом графике отображаются изменения потерь (Loss) и средней абсолютной ошибки (MAE) на тренировочной и валидационной выборках по мере обучения модели.")
     ]),
-
+    
     # Графики
-    html.Div([
-        dcc.Graph(figure=fig_age_distribution),
-        html.P("Этот график показывает распределение истинных значений возраста (y_true) в тестовой выборке. Он помогает понять, как распределяются данные по возрасту в наборе тестов.")
-    ]),
-    html.Div([
-        dcc.Graph(figure=fig_age_scatter),
-        html.P("Этот график отображает сравнение предсказанных значений возраста (y_pred) и истинных значений возраста (y_true). Красная пунктирная линия показывает идеальный результат, при котором предсказания полностью совпадают с реальностью.")
-    ]),
-    html.Div([
-        dcc.Graph(figure=fig_billing_by_admission),
-        html.P("График отображает распределение истинных и предсказанных значений стоимости лечения (Billing Amount) по типу госпитализации.")
-    ]),
-    html.Div([
-        dcc.Graph(figure=fig_billing_scatter),
-        html.P("Этот график отображает сравнение предсказанных значений стоимости лечения (y_pred_billing) и истинных значений стоимости (y_true_billing). Пунктирная линия показывает идеальный результат.")
-    ]),
-    html.Div([
-        dcc.Graph(figure=fig_age_error),
-        html.P("Этот график отображает распределение ошибок предсказания возраста (y_pred - y_true). Это важно для анализа того, насколько хорошо модель предсказывает значения.")
-    ]),
-    html.Div([
-        dcc.Graph(figure=fig_billing_error),
-        html.P("Этот график показывает распределение ошибок предсказания стоимости лечения (y_pred_billing - y_true_billing). Он помогает понять точность модели по предсказанию стоимости.")
-    ]),
-    html.Div([
-        dcc.Graph(figure=fig_gender_pie),
-        html.P("Диаграмма пирога для анализа распределения по полу пациентов. Этот график показывает, какой процент пациентов составляют мужчины и женщины в наборе данных.")
-    ]),
-    html.Div([
-        dcc.Graph(figure=fig_medical_condition_pie),
-        html.P("Диаграмма пирога для анализа распределения заболеваний среди пациентов. Он показывает, какой процент пациентов страдает от различных заболеваний, таких как астма, диабет и др.")
-    ])
+    html.Div([dcc.Graph(figure=fig_age_distribution), html.P("Распределение истинных значений возраста.")]),
+    html.Div([dcc.Graph(figure=fig_age_scatter), html.P("Сравнение предсказанных и истинных значений возраста.")]),
+    html.Div([dcc.Graph(figure=fig_billing_by_admission), html.P("Распределение стоимости лечения.")]),
+    html.Div([dcc.Graph(figure=fig_billing_scatter), html.P("Сравнение предсказанных и истинных значений стоимости лечения.")]),
+    html.Div([dcc.Graph(figure=fig_age_error), html.P("Распределение ошибок предсказания возраста.")]),
+    html.Div([dcc.Graph(figure=fig_billing_error), html.P("Распределение ошибок предсказания стоимости лечения.")]),
+    html.Div([dcc.Graph(figure=fig_gender_pie), html.P("Распределение пациентов по полу.")]),
+    html.Div([dcc.Graph(figure=fig_medical_condition_pie), html.P("Распределение заболеваний пациентов.")]),
+    html.Div([dcc.Graph(figure=fig_corr_matrix), html.P("Матрица корреляции признаков, визуализирующая взаимосвязи между переменными.")]),
+    html.Div([dcc.Graph(figure=feature_distribution), html.P("Гистограмма распределения признаков (нормализованные данные).")]),
+    html.Div([dcc.Graph(figure=fig_error_correlation), html.P("Анализ корреляции между ошибками предсказания возраста и стоимости лечения.")]),
 ])
