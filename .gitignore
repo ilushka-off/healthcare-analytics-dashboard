@@ -253,3 +253,5 @@ poetry.toml
 
 .python-version
 *.pkl
+
+venv
