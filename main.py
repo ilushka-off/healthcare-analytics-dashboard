@@ -1,16 +1,14 @@
-from scipy.stats import norm  # Импортируем norm для кривой Гаусса
 import dash
-from dash import dcc, html, Input, Output, dash_table
+from dash import dcc, html, dash_table
 import plotly.express as px
 import pandas as pd 
 import numpy as np
 from scipy import stats
-from sklearn.metrics import roc_auc_score, accuracy_score, precision_score, recall_score, f1_score, confusion_matrix, roc_curve, auc
+from sklearn.metrics import roc_auc_score, accuracy_score, precision_score, recall_score, f1_score
 from sklearn.preprocessing import StandardScaler, LabelEncoder
 import joblib
 import dash_bootstrap_components as dbc
 from datetime import datetime
-import plotly.graph_objects as go
 import seaborn as sns
 import matplotlib.pyplot as plt
 import io
@@ -256,7 +254,6 @@ print("app.layout", datetime.now().time())
 # Определение макета приложения
 app.layout = html.Div([
     html.H1("Анализ медицинских данных", style={'textAlign': 'center'}),
-    html.H2("Работа студенток гр. 4296 Мейзер М.В., Северьянова Е.Д., Салимзянова Р.Р.", style={'textAlign': 'center'}),
     
     # Таблица с данными
     html.Div([
