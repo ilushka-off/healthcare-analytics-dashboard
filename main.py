@@ -87,26 +87,30 @@ def calculate_statistics(values):
 
 # Функция для загрузки моделей и предсказаний
 def load_models_and_predictions(data):
+    # Загрузка моделей из файлов
     models = {
         name: joblib.load(f"{name.replace(' ', '_')}_model.pkl")
         for name in ["Logistic Regression", "Support Vector Machines", "k-Nearest Neighbors",
                      "Decision Tree", "Random Forest", "Gradient Boosting"]
     }
 
+    # Подготовка данных для предсказания
     X, y = data.drop(columns=["Test Results", "Name", "Date of Admission", "Discharge Date"]), data["Test Results"]
     X_scaled = StandardScaler().fit_transform(X)
 
+    # Предсказания и вероятности для каждой модели
     precomputed_predictions = {
         name: {
             "y_pred": model.predict(X_scaled if name in ["Logistic Regression", "Support Vector Machines",
                                                          "k-Nearest Neighbors", "Gradient Boosting"] else X),
             "y_proba": (model.predict_proba(X_scaled if name in ["Logistic Regression", "Support Vector Machines",
-                                                                 "k-Nearest Neighbors", "Gradient Boosting"] else X)
-                         if hasattr(model, "predict_proba") else np.zeros((len(y), len(np.unique(y)))))
+                                                                 "k-Nearest Neighbors", "Gradient Boosting"] else X))
+                         if hasattr(model, "predict_proba") else np.zeros((len(y), len(np.unique(y))))
         }
         for name, model in models.items()
     }
 
+    # Вычисление метрик для каждой модели
     metrics = {
         name: {
             "Accuracy": accuracy_score(y, preds["y_pred"]),
@@ -118,7 +122,14 @@ def load_models_and_predictions(data):
         for name, preds in precomputed_predictions.items()
     }
 
-    return models, precomputed_predictions, metrics, y 
+    # Вывод метрик моделей в консоль
+    print("Результаты моделей:")
+    for model_name, model_metrics in metrics.items():
+        print(f"\nМодель: {model_name}")
+        for metric_name, metric_value in model_metrics.items():
+            print(f"{metric_name}: {metric_value:.4f}")
+
+    return models, precomputed_predictions, metrics, y
 
 # Инициализация моделей, предсказаний и метрик
 models, precomputed_predictions, metrics, y = load_models_and_predictions(data)
@@ -251,6 +262,13 @@ print("Инициализация Dash-приложения", datetime.now().tim
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.BOOTSTRAP])
 print("app.layout", datetime.now().time())
 
+
+metrics_table = []
+for model_name, model_metrics in metrics.items():
+    row = {"Модель": model_name}
+    row.update(model_metrics)
+    metrics_table.append(row)
+
 # Определение макета приложения
 app.layout = html.Div([
     html.H1("Анализ медицинских данных", style={'textAlign': 'center'}),
@@ -313,6 +331,18 @@ app.layout = html.Div([
     html.Div([
         html.H3("Кластеризация методом DBSCAN (Age vs Billing Amount)", style={'textAlign': 'center'}),
         dcc.Graph(figure=fig1)
+    ]),
+
+    html.Div([
+        html.H3("Метрики моделей", style={'textAlign': 'center'}),
+        dash_table.DataTable(
+            id='metrics-table',
+            columns=[{"name": col, "id": col} for col in ["Модель", "Accuracy", "Precision", "Recall", "F1-Score", "ROC-AUC"]],
+            data=metrics_table,
+            style_table={'height': '300px', 'overflowY': 'auto'},
+            style_cell={'textAlign': 'left', 'padding': '10px'},
+            style_header={'backgroundColor': 'lightgrey', 'fontWeight': 'bold'}
+        )
     ])
 ])
 
