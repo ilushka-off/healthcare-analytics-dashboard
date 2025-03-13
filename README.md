@@ -30,17 +30,23 @@
     cd healthcare-analytics-dashboard
     ```
 
-2. Установите зависимости с помощью Poetry:
-
-    ```bash
-    poetry install
+2. Шаги установки (при помощи pip)
+#### Активируем виртуальное окружение
+    ```bash 
+    source venv/bin/activate
     ```
 
-3. Для активации виртуальной среды:
+#### Устанавливем зависимости
 
-    ```bash
-    poetry shell
+```bash 
+    pip install -r requirements.txt
+```
+
+#### Запускаем 
+    ```bash 
+        python main.py
     ```
+
 
 ## Запуск приложения
 
